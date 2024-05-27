@@ -1,6 +1,6 @@
 //dependenciess
 const User = require("../models/user");
-const { hashedPassword } = require("../helper/auth");
+const { hashedPassword, comparePassword } = require("../helper/auth");
 //test auth
 const test = (req, res) => {
   res.send("Home Page");
@@ -12,20 +12,20 @@ const registerUser = async (req, res) => {
     //validation
     if (!name || !email) {
       return res.json({
-        message: "Please fill in required field!",
+        error: "Please fill in required field!",
       });
     }
     //check password
     if (!password || password.length < 6) {
       return res.json({
-        message: "Passord Not less than 6 char ",
+        error: "Passord Not less than 6 char ",
       });
     }
     //check email
     const emailExist = await User.findOne({ email });
     if (emailExist) {
       return res.json({
-        message: "User Already been Registered",
+        error: "User Already been Registered",
       });
     }
 
@@ -38,14 +38,51 @@ const registerUser = async (req, res) => {
       email,
       password: passwordhash,
     });
-    console.log(user);
+    //console.log(user);
     //user return
     return res.json(user);
   } catch (error) {
     console.log(error);
   }
 };
+
+//login User
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    //validate
+    if (!email || !password) {
+      res.json({
+        error: "Please enter Email & Password!",
+      });
+    }
+
+    //check user
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.json({
+        error: "User Not Found Please Register First!",
+      });
+    }
+    //if user found then matched the password
+    const matchPassword = await comparePassword(password, user.password);
+    if (!matchPassword) {
+      res.json({
+        error: "Wrong Password! Enter Correct Password",
+      });
+    }
+    if (matchPassword) {
+      res.json("Logged In");
+      //const userName = user.name;
+      //console.log(`${userName} Successfuly Logged In!`);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   test,
   registerUser,
+  loginUser,
 };

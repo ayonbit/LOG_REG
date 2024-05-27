@@ -1,7 +1,11 @@
 //dependencies
 const express = require("express");
 const cors = require("cors");
-const { test, registerUser } = require("../controllers/authController");
+const {
+  test,
+  registerUser,
+  loginUser,
+} = require("../controllers/authController");
 //app router
 const router = express.Router();
 
@@ -17,5 +21,5 @@ router.use(
 //router request handle
 router.get("/", test);
 router.post("/register", registerUser);
-
+router.post("/login", loginUser);
 module.exports = router;
