@@ -1,5 +1,6 @@
 //dependenciess
 const User = require("../models/user");
+const { hashedPassword } = require("../helper/auth");
 //test auth
 const test = (req, res) => {
   res.send("Home Page");
@@ -27,11 +28,15 @@ const registerUser = async (req, res) => {
         message: "User Already been Registered",
       });
     }
+
+    //hashed password
+    const passwordhash = await hashedPassword(password);
+
     //create User
     const user = await User.create({
       name,
       email,
-      password,
+      password: passwordhash,
     });
     console.log(user);
     //user return
